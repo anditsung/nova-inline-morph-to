@@ -2,6 +2,7 @@
 
 namespace DigitalCreative\InlineMorphTo;
 
+use Illuminate\Validation\ValidationException;
 use Laravel\Nova\Resource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -15,6 +16,7 @@ use Laravel\Nova\Http\Controllers\ResourceShowController;
 use Laravel\Nova\Http\Controllers\UpdateFieldController;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Nova;
+use function Illuminate\Events\queueable;
 
 class InlineMorphTo extends Field
 {
@@ -120,7 +122,6 @@ class InlineMorphTo extends Field
      */
     public function resolveForDisplay($resource, $attribute = null)
     {
-
         /**
          * @var null|Model $relationInstance
          * @var Field $field
@@ -287,13 +288,17 @@ class InlineMorphTo extends Field
          */
         $request = app(NovaRequest::class);
         $originalResource = $request->route()->resource;
+        quo([
+            'id' => 'start',
+            'r' => $this->meta['resources'],
+        ]);
 
         /**
          * Temporarily remap the route resource key so every sub field thinks its being resolved by its original parent
          */
         foreach ($this->meta[ 'resources' ] as $resource) {
 
-            $resource[ 'fields' ] = $resource[ 'fields' ]->transform(function ($field) use ($request, $resource) {
+            $resource[ 'fields' ]->transform(function ($field) use ($request, $resource) {
 
                 $request->route()->setParameter('resource', $resource[ 'uriKey' ]);
 
@@ -302,6 +307,11 @@ class InlineMorphTo extends Field
             });
 
         }
+
+        quo([
+            'id' => 'end',
+            'r' => $this->meta['resources'],
+        ]);
 
         $request->route()->setParameter('resource', $originalResource);
 

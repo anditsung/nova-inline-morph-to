@@ -30,6 +30,10 @@
     export default {
         props: [ 'resource', 'resourceName', 'resourceId', 'field' ],
         mixins: [ ReplaceValueWithLabel ],
+
+        mounted() {
+            console.log(this.standardFields)
+        },
         computed: {
             relationalFields() {
 

@@ -28,6 +28,7 @@ trait HasInlineMorphToFields
                 $resources = $field->meta[ 'resources' ]->where('className', $novaResourceClass)
                                                         ->values()
                                                         ->toArray();
+
                 /**
                  * Filter out all the unnecessary resources
                  */
@@ -38,6 +39,15 @@ trait HasInlineMorphToFields
                 }
 
                 $field->meta[ 'resources' ] = $resources;
+
+            }
+            else if ($field instanceof NewMorphTo) {
+                $resourceClass = $field->resourceClass;
+
+                $resources = collect($field->morphToTypes)->where('value', $field->morphToType)
+                    ->values()
+                    ->toArray();
+
 
             }
 
